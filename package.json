@@ -3,15 +3,21 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "server": "babel-node ./src/server.js",
+    "pm2:server": "pm2 startOrRestart ecosystem.config.js --only server --update-env && pm2 logs server",
+    "worker": "babel-node ./src/worker.js",
+    "pm2:worker": "pm2 start worker -i 4 && pm2 logs worker"
+  },
   "devDependencies": {
-    "node-ipc": "^9.1.1"
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/node": "^7.0.0",
+    "@babel/preset-env": "^7.1.0"
   },
   "dependencies": {
     "colors": "^1.3.2",
-    "debug": "^4.1.0"
-  },
-  "scripts": {
-    "server": "pm2 start ./src/server.js -i 2 && pm2 logs server",
-    "workers": "pm2 start ./src/worker.js -i 4 && pm2 logs worker"
+    "debug": "^4.1.0",
+    "node-ipc": "^9.1.1"
   }
 }
