@@ -5,8 +5,7 @@ import { initlaizeIPCServer } from './ipc-server'
 const debug = console.log
 
 function addMessageToQueue () {
-  addDummyMessage()
-  setTimeout(addMessageToQueue, 2000)
+  setInterval(addDummyMessage, 2000)
 }
 
 (function main () {
@@ -17,6 +16,7 @@ function addMessageToQueue () {
   ) {
     debug(`Master server found (${appInstance}). Staring IPC Channel`.green)
     addMessageToQueue()
+    setInterval(addDummyMessage, 2000)
     initlaizeIPCServer()
   } else {
     debug(`Slave server found (${appInstance}). Skipping IPC Setup`.red)

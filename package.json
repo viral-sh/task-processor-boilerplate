@@ -4,10 +4,10 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "server": "babel-node ./src/server.js",
+    "server": "babel-node ./src/server --inspect",
     "pm2:server": "pm2 startOrRestart ecosystem.config.js --only server --update-env && pm2 logs server",
-    "worker": "babel-node ./src/worker.js",
-    "pm2:worker": "pm2 start worker -i 4 && pm2 logs worker"
+    "worker": "babel-node ./src/worker",
+    "pm2:worker": "pm2 startOrRestart ecosystem.config.js --only worker --update-env && pm2 logs worker"
   },
   "devDependencies": {
     "@babel/cli": "^7.1.2",

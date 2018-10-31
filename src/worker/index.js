@@ -1,13 +1,15 @@
 import 'colors'
 import ipc from 'node-ipc'
-import { EVENTS, TASK_SERVER, APP_SPACE } from './constants'
+import config from '../config'
+import { EVENTS, TASK_SERVER, APP_SPACE } from '../constants'
 
-const SLEEP_TIME = 5000
+const debug = console.log
+const TCP_ENABLED = process.env.TCP === 'true' || config.TCP_ENABLED
+const SLEEP_TIME = config.SLEEP_TIME
+
 let ACCEPTING_NEW_TASKS = true
 let scheduledGetTask = null
 let currentTask = null
-
-const debug = console.log
 
 function processTask (data, onSuccess, onFailure) {
   if (currentTask) {
@@ -62,6 +64,7 @@ process.on('SIGINT', function () {
 
 function emit (eventKey, data) {
   const message = {
+    id: ipc.config.id,
     from: ipc.config.id,
     payload: data
   }
@@ -134,7 +137,7 @@ function handleNoTasks (data) {
 
 function onServerConnect () {
   // register event handlers
-  debug('on server connect')
+  debug('regitering event handlers')
   const server = ipc.of[TASK_SERVER]
   server.on(EVENTS.SERVER_CONNECTED, handleConnect)
   server.on(EVENTS.SERVER_DISCONNECTED, handleDisconnect)
@@ -143,12 +146,21 @@ function onServerConnect () {
 }
 
 function connectToTaskServer () {
+  // configure client
   ipc.config.appspace = APP_SPACE
   ipc.config.id = `worker-${process.env.NODE_APP_INSTANCE || 0}`
-  ipc.config.retry = 1500
-  ipc.config.silent = true
+  ipc.config.retry = config.RETRY
+  ipc.config.silent = !config.IPC_LOGS
   debug(`trying to connect to ${TASK_SERVER}...`)
-  ipc.connectTo(TASK_SERVER, onServerConnect)
+
+  // connect to server
+  if (TCP_ENABLED) {
+    debug('TCP ENABLED'.bold.yellow)
+    ipc.connectToNet(TASK_SERVER, config.HOST, config.PORT, onServerConnect)
+  } else {
+    debug('TCP DISABLED'.bold.yellow)
+    ipc.connectTo(TASK_SERVER, onServerConnect)
+  }
 }
 
 connectToTaskServer()
